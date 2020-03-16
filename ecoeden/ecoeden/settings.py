@@ -79,13 +79,13 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': (
         'rest_framework.pagination.PageNumberPagination'
     ),
-    'PAGE_SIZE': 10, 
-    # 'DEFAULT_AUTHENTICATION_CLASSES' : (
-    #     'rest_framework.authentication.TokenAuthentication',
-    # ),
-    # 'DEFAULT_PERMISSION_CLASSES': (
-    #     'rest_framework.permissions.IsAuthenticated',
-    # ) 
+    'PAGE_SIZE': 2, 
+    'DEFAULT_AUTHENTICATION_CLASSES' : (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ) 
 }
 
 # Database
@@ -93,8 +93,12 @@ REST_FRAMEWORK = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': os.getenv('RDS_USER'),
+        'PASSWORD': os.getenv('RDS_PASSWORD'),
+        'HOST': 'database-ecoeden.cosbpnktbrze.ap-south-1.rds.amazonaws.com',
+        'PORT': '5432',
     }
 }
 
