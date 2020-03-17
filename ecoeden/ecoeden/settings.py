@@ -25,7 +25,7 @@ SECRET_KEY = 'w_ym6!@!7--04%u(%#mf^=*od9mg5n4t!ox=l*^epvhl78bhai'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['ecoeden.nathzi1505.xyz']
+ALLOWED_HOSTS = ['api.ecoeden.xyz']
 
 
 # Application definition
@@ -139,9 +139,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-# MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
-STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
 # AWS S3 configuration

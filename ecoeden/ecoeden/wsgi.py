@@ -12,5 +12,6 @@ import os
 from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ecoeden.settings')
+exec(open('/home/ubuntu/env-vars.py').read())
 
 application = get_wsgi_application()
