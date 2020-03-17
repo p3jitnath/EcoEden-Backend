@@ -25,7 +25,7 @@ SECRET_KEY = 'w_ym6!@!7--04%u(%#mf^=*od9mg5n4t!ox=l*^epvhl78bhai'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['api.ecoeden.xyz']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
