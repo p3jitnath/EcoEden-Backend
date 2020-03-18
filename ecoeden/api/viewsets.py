@@ -25,8 +25,8 @@ class PhotoViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Photo.objects.all()
-        # AUTHENTICATION 
-        user = self.request.user
-        if not user.is_superuser:
-            queryset = Photo.objects.filter(user=user)
+        # # AUTHENTICATION 
+        # user = self.request.user
+        # if not user.is_superuser:
+        #     queryset = Photo.objects.filter(user=user)
         return queryset

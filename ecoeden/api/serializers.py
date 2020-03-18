@@ -35,7 +35,7 @@ class UserSerializer(serializers.ModelSerializer):
 class TrashCollectionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = TrashCollection
-        fields = ('id', 'uploader', 'uploaded_at', 'collector', 'verified', 'verified_at')
+        fields = ('id', 'uploader', 'uploaded_at', 'photo', 'collector', 'verified', 'verified_at')
     
     def update(self, instance, validated_data):
         verified = validated_data['verified']

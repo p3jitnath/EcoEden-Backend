@@ -9,20 +9,6 @@ class User(AbstractUser):
     score = models.IntegerField(default=0)
     REQUIRED_FIELDS = ['mobile']
 
-class TrashCollection(models.Model):
-
-    def get_time_of_verification(instance):
-        if instance.verified is not None:
-            return datetime.now()
-        else:
-            return None
-
-    uploader = models.ForeignKey(User, on_delete=models.CASCADE, related_name='uploader')
-    uploaded_at = models.DateTimeField(auto_now_add=True)
-    collector = models.ForeignKey(User, on_delete=models.CASCADE, related_name='poster', null=True)
-    verified = models.NullBooleanField(null=True)
-    verified_at = property(get_time_of_verification)
-
 class Photo(models.Model):
 
     def get_prediction(instance):
@@ -42,3 +28,21 @@ class Photo(models.Model):
     description = models.TextField(blank=True, null=True)
     lat = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
     lng = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
+
+    def __str__(self):
+        return str(self.user) + '-' + str(self.created_at)
+
+class TrashCollection(models.Model):
+
+    def get_time_of_verification(instance):
+        if instance.verified is not None:
+            return datetime.now()
+        else:
+            return None
+
+    uploader = models.ForeignKey(User, on_delete=models.CASCADE, related_name='uploader')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    photo = models.OneToOneField(Photo, on_delete=models.CASCADE, null=True)
+    collector = models.ForeignKey(User, on_delete=models.CASCADE, related_name='poster', null=True)
+    verified = models.NullBooleanField(null=True)
+    verified_at = property(get_time_of_verification)
