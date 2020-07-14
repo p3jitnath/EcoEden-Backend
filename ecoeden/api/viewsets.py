@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-
 from .models import *
 from .serializers import *
 from rest_framework import viewsets
@@ -15,6 +14,14 @@ class UserViewSet(viewsets.ModelViewSet):
 
         return super(UserViewSet, self).get_permissions()
 
+    def get_queryset(self):
+        queryset = get_user_model().objects.all()
+        # AUTHENTICATION 
+        user = self.request.user
+        if not user.is_superuser:
+            queryset = get_user_model().objects.filter(username=user.username)
+        return queryset
+
 class TrashCollectionViewSet(viewsets.ModelViewSet):
     serializer_class = TrashCollectionSerializer
     queryset = TrashCollection.objects.all()
@@ -25,8 +32,8 @@ class PhotoViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Photo.objects.all()
-        # # AUTHENTICATION 
-        # user = self.request.user
-        # if not user.is_superuser:
-        #     queryset = Photo.objects.filter(user=user)
+        # AUTHENTICATION 
+        user = self.request.user
+        if not user.is_superuser:
+            queryset = Photo.objects.filter(user=user)
         return queryset

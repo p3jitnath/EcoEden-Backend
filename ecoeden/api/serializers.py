@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django.conf import settings
 from rest_framework import serializers
 from .models import *
@@ -52,4 +53,4 @@ class TrashCollectionSerializer(serializers.HyperlinkedModelSerializer):
 class PhotoSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Photo
-        fields = ('id', 'image', 'created_at', 'trash', 'user', 'lat', 'lng', 'description')
+        fields = ('id', 'image', 'created_at', 'trash', 'user', 'lat', 'lng', 'description', 'upvotes', 'downvotes')
