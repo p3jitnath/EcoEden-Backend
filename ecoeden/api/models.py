@@ -24,7 +24,7 @@ class Photo(models.Model):
     
     trash = property(get_prediction)
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(User, related_name='user', on_delete=models.CASCADE, null=False)
     image = models.ImageField(upload_to = file_name)
     description = models.TextField(blank=True, null=True)
     lat = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
@@ -35,17 +35,24 @@ class Photo(models.Model):
     def __str__(self):
         return str(self.user) + '-' + str(self.created_at)
 
-class TrashCollection(models.Model):
+# class TrashCollection(models.Model):
 
-    def get_time_of_verification(instance):
-        if instance.verified is not None:
-            return datetime.now()
-        else:
-            return None
+#     def get_time_of_verification(instance):
+#         if instance.verified is not None:
+#             return datetime.now()
+#         else:
+#             return None
 
-    uploader = models.ForeignKey(User, on_delete=models.CASCADE, related_name='uploader')
-    uploaded_at = models.DateTimeField(auto_now_add=True)
-    photo = models.OneToOneField(Photo, on_delete=models.CASCADE, null=True)
-    collector = models.ForeignKey(User, on_delete=models.CASCADE, related_name='poster', null=True)
-    verified = models.NullBooleanField(null=True)
-    verified_at = property(get_time_of_verification)
+#     uploader = models.ForeignKey(User, on_delete=models.CASCADE, related_name='uploader')
+#     uploaded_at = models.DateTimeField(auto_now_add=True)
+#     photo = models.OneToOneField(Photo, on_delete=models.CASCADE, null=True)
+#     collector = models.ForeignKey(User, on_delete=models.CASCADE, related_name='poster', null=True)
+#     verified = models.NullBooleanField(null=True)
+#     verified_at = property(get_time_of_verification)
+
+class Activity(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(null=True)
+    user = models.ForeignKey(User, related_name='activity_user', on_delete=models.CASCADE, null=False)
+    photo = models.ForeignKey(Photo, related_name='activity_photo', on_delete=models.CASCADE, null=False)
+    vote = models.IntegerField(default=0)

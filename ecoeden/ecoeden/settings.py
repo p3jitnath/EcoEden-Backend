@@ -75,18 +75,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ecoeden.wsgi.application'
 
+AUTHENTICATION_ENABLED = True
+
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': (
         'rest_framework.pagination.PageNumberPagination'
     ),
     'PAGE_SIZE': 2, 
-    'DEFAULT_AUTHENTICATION_CLASSES' : (
+}
+
+if AUTHENTICATION_ENABLED:
+    REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES']  = (
         'rest_framework.authentication.TokenAuthentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
+    )
+    REST_FRAMEWORK['DEFAULT_PERMISSION_CLASSES'] = (
         'rest_framework.permissions.IsAuthenticated',
     ) 
-}
+
+
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
