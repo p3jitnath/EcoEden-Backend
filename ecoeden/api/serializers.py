@@ -4,6 +4,7 @@ from rest_framework import serializers
 from .models import *
 
 from datetime import datetime
+from .utils import update_score, update_user_score, update_trash_collection_object
 
 class UserSerializer(serializers.ModelSerializer):
 
@@ -28,7 +29,10 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name',
             'username',
             'password',
-            'score'
+            'score',
+            'collections',
+            'posts',
+            'verifications'
         )
         extra_kwargs = {
             'password': {'write_only': True},
@@ -46,24 +50,11 @@ class UserSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         return super(UserSerializer, self).update(instance, validated_data)
 
-# class TrashCollectionSerializer(serializers.HyperlinkedModelSerializer):
-#     class Meta:
-#         model = TrashCollection
-#         fields = ('id', 'uploader', 'uploaded_at', 'photo', 'collector', 'verified', 'verified_at')
+class BaseActivitySerializer(serializers.HyperlinkedModelSerializer):
+
+    def get_obj_str(self):
+        return None
     
-#     def update(self, instance, validated_data):
-#         verified = validated_data['verified']
-#         uploader = validated_data['uploader']
-#         collector = validated_data['collector']
-#         if validated_data['verified'] == True:
-#             uploader.score = uploader.score + settings.SCORE_CREDIT
-#             uploader.save()
-#             collector.score = collector.score + settings.SCORE_CREDIT
-#             collector.save()
-#         return super(TrashCollectionSerializer, self).update(instance, validated_data)
-
-class ActivitySerializer(serializers.HyperlinkedModelSerializer):
-
     def to_representation(self, obj):
         output = super().to_representation(obj)
         if obj.updated_at:
@@ -71,45 +62,72 @@ class ActivitySerializer(serializers.HyperlinkedModelSerializer):
         return output
 
     class Meta:
-        model = Activity
-        fields = ('id', 'created_at', 'user', 'photo', 'vote')
-
+        fields = ('id', 'created_at', 'user', 'vote')
+    
     def create(self, validated_data):
-        photo = validated_data['photo']
+        obj = validated_data[self.get_obj_str()]
         vote = validated_data['vote']
+
         if (vote > 0):
-            photo.upvotes += 1
+            obj.upvotes += 1
         elif (vote < 0):
-            photo.downvotes += 1 
-        photo.save()
-        return super(ActivitySerializer, self).create(validated_data)
+            obj.downvotes += 1 
+        obj.save()
+
+        user = update_user_score(validated_data['user'], verify=True)
+        user.save()
+
+        return super(BaseActivitySerializer, self).create(validated_data)
 
     def update(self, instance, validated_data):
-        photo = validated_data['photo']
+        try: 
+            obj = validated_data[self.get_obj_str()] 
+        except: 
+            obj = getattr(instance, self.get_obj_str())
+
         new_vote = validated_data['vote']
         old_vote = instance.vote
         
-        if new_vote == 0 : 
-            if old_vote < 0:
-                photo.downvotes -= 1
-            elif old_vote > 0:
-                photo.upvotes -= 1
-        elif new_vote > 0 : 
-            if old_vote < 0:
-                photo.downvotes -= 1
-                photo.upvotes += 1
-            elif old_vote == 0:
-                photo.upvotes += 1
-        elif new_vote < 0 : 
-            if old_vote > 0:
-                photo.upvotes -= 1
-                photo.downvotes += 1
-            elif old_vote == 0:
-                photo.downvotes += 1
-
-        photo.save()
+        obj = update_score(new_vote, old_vote, obj)
+        obj.save()
         validated_data['updated_at'] = datetime.now()
-        return super(ActivitySerializer, self).update(instance, validated_data)
+        return super(BaseActivitySerializer, self).update(instance, validated_data)
+
+class ActivitySerializer(BaseActivitySerializer):
+    
+    class Meta:
+        model = Activity
+        fields = BaseActivitySerializer.Meta.fields + ('photo', )
+
+    def get_obj_str(self):
+        return 'photo'
+
+class TrashCollectionSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = TrashCollection
+        fields = ('id', 'photo', 'collector', 'collected_at', 'upvotes', 'downvotes', 'visible')
+
+class TrashCollectionActivitySerializer(BaseActivitySerializer):
+    class Meta:
+        model = TrashCollectionActivity
+        fields = BaseActivitySerializer.Meta.fields + ('trash_collection', )
+
+    def get_obj_str(self):
+        return 'trash_collection'  
+
+    def create(self, validated_data):
+        obj = validated_data['trash_collection']
+        obj = update_trash_collection_object(obj)        
+        obj.save()
+
+        return super(TrashCollectionActivitySerializer, self).create(validated_data)
+
+    def update(self, instance, validated_data):
+        obj = instance.trash_collection
+        obj = update_trash_collection_object(obj)        
+        obj.save()
+
+        return super(TrashCollectionActivitySerializer, self).update(instance, validated_data)
 
 class PhotoSerializer(serializers.HyperlinkedModelSerializer):
 
@@ -120,13 +138,29 @@ class PhotoSerializer(serializers.HyperlinkedModelSerializer):
         request = self.context.get("request")
         if request.user.is_authenticated:
             user = request.user
-            objects = ActivitySerializer(Activity.objects.filter(user=user, photo=obj), many=True, context={'request':request}).data
-            if objects is not None:
-                output['activity'] = objects
+                
+            activity = ActivitySerializer(Activity.objects.filter(user=user, photo=obj), many=True, context={'request':request}).data
+            output['activity'] = activity
+
+            try:
+                trash_collection_obj = TrashCollection.objects.get(photo=obj, visible=True)
+                trash_collection = TrashCollectionSerializer(trash_collection_obj, context={'request':request}).data
+                trash_collection_activity = TrashCollectionActivitySerializer(TrashCollectionActivity.objects.filter(user=user, trash_collection=trash_collection_obj), many=True, context={'request':request}).data
+            except:
+                trash_collection = []
+
+            output['trash_collection'] = trash_collection
+            if len(trash_collection) > 0: 
+                output['trash_collection']['activity'] = trash_collection_activity
 
         return output
 
     class Meta:
         model = Photo
         fields = ('id', 'image', 'user', 'created_at', 'trash', 'lat', 'lng', 'description', 
-                  'upvotes', 'downvotes')
+                  'upvotes', 'downvotes', 'visible')
+
+    def create(self, validated_data):
+        user = update_user_score(validated_data['user'], post=True)
+        user.save()
+        return super(PhotoSerializer, self).create(validated_data)

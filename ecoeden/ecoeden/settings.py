@@ -86,7 +86,8 @@ REST_FRAMEWORK = {
 
 if AUTHENTICATION_ENABLED:
     REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES']  = (
-        'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
+        'api.authentication.ExpiringTokenAuthentication',
     )
     REST_FRAMEWORK['DEFAULT_PERMISSION_CLASSES'] = (
         'rest_framework.permissions.IsAuthenticated',
@@ -157,4 +158,12 @@ AWS_S3_REGION_NAME = 'ap-south-1'
 AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
 
 # SCORE configuration
-SCORE_CREDIT = 250
+SCORE_DEFAULT = 100
+SCORE_POST = 50
+SCORE_COLLECT = 100
+SCORE_VERIFY = 25
+
+# MISCELLANEOUS
+TOKEN_EXPIRY_SECONDS = 60 * 30
+THRESHOLD = 2 # + 1
+
