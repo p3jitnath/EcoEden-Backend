@@ -18,6 +18,9 @@ class UserSerializer(serializers.ModelSerializer):
         if email and mobile:
             data['email']  = email
             data['mobile'] = mobile
+        else:
+            del data['email']
+            del data['mobile']
         return data
 
     class Meta:
@@ -29,6 +32,8 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name',
             'username',
             'password',
+            'mobile',
+            'email',
             'score',
             'collections',
             'posts',
@@ -147,7 +152,7 @@ class PhotoSerializer(serializers.HyperlinkedModelSerializer):
                 trash_collection = TrashCollectionSerializer(trash_collection_obj, context={'request':request}).data
                 trash_collection_activity = TrashCollectionActivitySerializer(TrashCollectionActivity.objects.filter(user=user, trash_collection=trash_collection_obj), many=True, context={'request':request}).data
             except:
-                trash_collection = []
+                trash_collection = {}
 
             output['trash_collection'] = trash_collection
             if len(trash_collection) > 0: 
@@ -163,4 +168,7 @@ class PhotoSerializer(serializers.HyperlinkedModelSerializer):
     def create(self, validated_data):
         user = update_user_score(validated_data['user'], post=True)
         user.save()
+        
+        # validated_data['visible'] = True
+        
         return super(PhotoSerializer, self).create(validated_data)

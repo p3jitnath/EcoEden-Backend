@@ -21,7 +21,7 @@ class Photo(models.Model):
 
     def get_prediction(instance):
         # insert model prediction
-        return False
+        return True
 
     def file_name(instance, filename):
         now = datetime.now() 
@@ -35,8 +35,8 @@ class Photo(models.Model):
     user = models.ForeignKey(User, related_name='user', on_delete=models.CASCADE, null=False)
     image = models.ImageField(upload_to = file_name)
     description = models.TextField(blank=True, null=True)
-    lat = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
-    lng = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
+    lat = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=False)
+    lng = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=False)
     
     upvotes = models.IntegerField(default=0, blank=True)
     downvotes = models.IntegerField(default=0, blank=True)
@@ -59,8 +59,8 @@ class Activity(models.Model):
 
 class TrashCollection(models.Model):
     collected_at = models.DateTimeField(auto_now_add=True)
-    photo = models.OneToOneField(Photo, on_delete=models.CASCADE, null=True)
-    collector = models.ForeignKey(User, on_delete=models.CASCADE, related_name='poster', null=True)
+    photo = models.OneToOneField(Photo, on_delete=models.CASCADE, null=False)
+    collector = models.ForeignKey(User, on_delete=models.CASCADE, related_name='poster', null=False)
     upvotes = models.IntegerField(default=0, blank=True)
     downvotes = models.IntegerField(default=0, blank=True) 
     visible = models.BooleanField(default=True)

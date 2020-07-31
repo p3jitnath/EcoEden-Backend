@@ -30,7 +30,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
 
 class PhotoFeedViewSet(viewsets.ModelViewSet):
     serializer_class = PhotoSerializer
-    queryset = Photo.objects.filter(visible=True)
+    queryset = Photo.objects.all().filter(visible=True).order_by("created_at")
     http_method_names = ['get']
 
 class PhotoViewSet(viewsets.ModelViewSet):
