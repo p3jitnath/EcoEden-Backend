@@ -163,7 +163,7 @@ class PhotoSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Photo
         fields = ('id', 'image', 'user', 'created_at', 'trash', 'lat', 'lng', 'description', 
-                  'upvotes', 'downvotes', 'visible')
+                  'upvotes', 'downvotes', 'visible', 'is_indoors')
 
     def create(self, validated_data):
         user = update_user_score(validated_data['user'], post=True)

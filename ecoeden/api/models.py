@@ -37,6 +37,8 @@ class Photo(models.Model):
     description = models.TextField(blank=True, null=True)
     lat = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=False)
     lng = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=False)
+
+    is_indoors = models.BooleanField(default=False)
     
     upvotes = models.IntegerField(default=0, blank=True)
     downvotes = models.IntegerField(default=0, blank=True)

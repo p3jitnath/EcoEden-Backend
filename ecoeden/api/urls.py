@@ -12,6 +12,7 @@ router.register('users', UserViewSet)
 router.register('feed', PhotoFeedViewSet, basename='feed')
 router.register('activity', ActivityViewSet)
 router.register('leaderboard', LeaderboardViewSet, basename='leaderboard')
+router.register('community', CommunityFeedViewSet, basename='community')
 
 router.register('trash_collection', TrashCollectionViewSet)
 router.register('trash_collection_activity', TrashCollectionActivityViewSet)
