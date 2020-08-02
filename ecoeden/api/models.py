@@ -39,6 +39,7 @@ class Photo(models.Model):
     lng = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=False)
 
     is_indoors = models.BooleanField(default=False)
+    scale = models.IntegerField(default=2)
     
     upvotes = models.IntegerField(default=0, blank=True)
     downvotes = models.IntegerField(default=0, blank=True)

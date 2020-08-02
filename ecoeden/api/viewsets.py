@@ -35,7 +35,8 @@ class PhotoFeedViewSet(viewsets.ModelViewSet):
 
 class CommunityFeedViewSet(viewsets.ModelViewSet):
     serializer_class = PhotoSerializer
-    queryset = Photo.objects.all().filter(visible=True).order_by("-upvotes")
+    photos_in_trash_collection = list(TrashCollection.objects.all().values_list('photo__id', flat=True))
+    queryset = Photo.objects.exclude(id__in=photos_in_trash_collection).order_by("-upvotes")
     http_method_names = ['get']
 
 class PhotoViewSet(viewsets.ModelViewSet):
