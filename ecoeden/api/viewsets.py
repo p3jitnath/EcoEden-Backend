@@ -60,7 +60,7 @@ class LeaderboardPagination(PageNumberPagination):
 
 class LeaderboardViewSet(viewsets.ModelViewSet):
     pagination_class = LeaderboardPagination
-    queryset = get_user_model().objects.order_by('-score', '-collections', '-posts', '-verifications', 'first_name')
+    queryset = get_user_model().objects.exclude(username="anonymous").order_by('-score', '-collections', '-posts', '-verifications', 'first_name')
     serializer_class = UserSerializer
     http_method_names = ['get']
 
